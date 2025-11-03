@@ -1,0 +1,34 @@
+name: Netlib 保活任务
+
+on:
+  schedule:
+    - cron: '0 0 */10 * *'   # 每10天自动执行一次
+  workflow_dispatch:          # 支持手动触发
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install playwright requests
+        playwright install chromium
+
+    - name: Run keepalive script
+      env:
+        UZANTONOMO: ${{ secrets.UZANTONOMO }}
+        PASVORTO: ${{ secrets.PASVORTO }}
+        TELEGRAM_SIGNALO: ${{ secrets.TELEGRAM_SIGNALO }}
+        TELEGRAM_BABILO_ID: ${{ secrets.TELEGRAM_BABILO_ID }}
+      run: |
+        python netlib_keepalive.py
